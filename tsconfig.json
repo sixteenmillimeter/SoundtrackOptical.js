@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "lib": [
+            "es6"
+        ],
+        "noImplicitAny": true,
+        "strictNullChecks": false,
+        "baseUrl": "./",
+        "moduleResolution": "node",
+        "esModuleInterop" : true,
+        "allowJs": true,
+        "outDir": "./dist/node/",
+        "baseUrl" : "./src/node/",
+        "rootDir" : "./src/node/",
+        "typeRoots": [
+            "./node_modules/@types"
+        ],
+        "types": [
+            "node"
+        ]
+    },
+    "exclude" : [
+        "./scripts/",
+        "./src/dom/",
+        "./node_modules/",
+        "./dist/",
+        "./tests/",
+        "./data/"
+    ]
+}

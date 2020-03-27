@@ -1,0 +1,32 @@
+{
+  "name": "soundtrackoptical",
+  "version": "0.0.1",
+  "description": "SoundtrackOptical.js for the DOM and node.js",
+  "main": "dist/node/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "node ./scripts/compile.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sixteenmillimeter/SoundtrackOptical.js.git"
+  },
+  "author": "sixteenmillimeter",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sixteenmillimeter/SoundtrackOptical.js/issues"
+  },
+  "homepage": "https://github.com/sixteenmillimeter/SoundtrackOptical.js#readme",
+  "devDependencies": {
+    "@types/fs-extra": "^8.1.0",
+    "@types/jimp": "^0.2.28",
+    "@types/node": "^13.9.0",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "audio-decode": "^1.4.0",
+    "audio-lena": "^2.1.1",
+    "fs-extra": "^9.0.0",
+    "jimp": "^0.9.5"
+  }
+}
