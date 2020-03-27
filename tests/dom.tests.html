@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head></head>
+<body>
+	<canvas id="canvas"></canvas>
+	<script src="../dist/dom/index.js"></script>
+	<script>
+		let soundtrack;
+		async function main () {
+			var canvas = document.getElementById('canvas');
+			soundtrack = new SoundtrackOptical(canvas, '../data/barking.wav');
+			try {
+				await soundtrack.decode();
+			} catch (err) {
+				console.error(err);
+			}
+			console.time('frame');
+			soundtrack.frame(100);
+			console.timeEnd('frame');
+			
+			console.log('min');
+			console.log(soundtrack.min);
+			console.log('max');
+			console.log(soundtrack.max);
+		}
+		main();
+	</script>
+</body>
+</html>
