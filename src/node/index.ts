@@ -52,6 +52,7 @@ export default class SoundtrackOptical {
    * @constructor
    * 
    * @param soundtrackFile {String} Path to soundtrackFile
+   * @param dpi {Integer} Dpi of output resolution to scale to
    * @param volume {Float} Volume of output soundtrack, 0 to 1.0
    * @param type {String} Type of soundtrack either "unilateral", "variable area", "dual variable area", "multiple variable area", "variable density"
    * @param pitch {String} Pitch of the film, either "long" for projection or "short" for camera stock
