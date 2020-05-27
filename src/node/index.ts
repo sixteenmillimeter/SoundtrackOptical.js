@@ -3,6 +3,7 @@
 import { readFile, writeFile } from 'fs-extra';
 import Jimp from 'jimp';
 import decode from 'audio-decode';
+import { join, resolve } from 'path';
 //import WavDecoder from 'wav-decoder';
 //import buffer from 'audio-lena/mp3';
 
@@ -17,6 +18,7 @@ export default class SoundtrackOptical {
   private VOLUME : number = 1.0;
   private pitch : string = 'long';
   private FILEPATH : string;
+  private OUTPUT : string;
   
   private IN : number      = 25.4;
   private FRAME_H : number = 7.62;
@@ -52,15 +54,16 @@ export default class SoundtrackOptical {
    * @constructor
    * 
    * @param soundtrackFile {String} Path to soundtrackFile
+   * @param {string} output Directory to output frame files to
    * @param dpi {Integer} Dpi of output resolution to scale to
    * @param volume {Float} Volume of output soundtrack, 0 to 1.0
    * @param type {String} Type of soundtrack either "unilateral", "variable area", "dual variable area", "multiple variable area", "variable density"
    * @param pitch {String} Pitch of the film, either "long" for projection or "short" for camera stock
    * @param positive {Boolean} Whether or not soundtrack is positive or negative
    */
-  
-  constructor (soundtrackFile : string, dpi? : number, volume? : number, type? : string, pitch? : string, positive? : boolean) {
+  constructor (soundtrackFile : string, output? : string, dpi? : number, volume? : number, type? : string, pitch? : string, positive? : boolean) {
     this.FILEPATH = soundtrackFile;
+    this.OUTPUT = typeof output !== 'undefined' ? output : __dirname;
     this.VOLUME = typeof volume !== 'undefined' ? volume : this.VOLUME;
     this.POSITIVE = typeof positive !== 'undefined' ? positive : this.POSITIVE;
     this.FRAME_H = (pitch == 'short') ? 7.605 : 7.62;
@@ -122,7 +125,7 @@ export default class SoundtrackOptical {
   /**
    * Calls frame() every frame of parent PApplet draw()
    * 
-   */
+   **/
   public async draw () {
     this.frame(this.i);
     this.i++;
@@ -152,12 +155,13 @@ export default class SoundtrackOptical {
   }
   
   /**
-   * Draws a frame on parent PApplet window at position 
+   * Draws a frame in raw window at position 
    * 
    * @param frameNumber {Integer} Frame of soundtrack to draw
    */
-  
   public async frame (frameNumber? : number) {
+    const frameStr : string = this.padLeft(frameNumber, 6);
+    const framePath = resolve(join(this.OUTPUT, `./${frameStr}-${this.TYPE}.png`));
     let line : Uint8Array;
   	let color : number = this.POSITIVE ? 255 : 0;
   	let bg : number = this.POSITIVE ? 0 : 255;
@@ -203,7 +207,7 @@ export default class SoundtrackOptical {
       raw.resize(this.DEPTH, this.FRAME_H_PIXELS);
     } else {
       try {
-        //await raw.writeAsync(`./${frameNumber}-${this.TYPE}.png`);
+        await raw.writeAsync(framePath);
       } catch (err) {
         throw err;
       }
@@ -328,7 +332,7 @@ export default class SoundtrackOptical {
     return line;
   }
 
-  private variableDensity(sample : number) {
+  private variableDensity(sample : number) : Uint8Array {
     const density : number = Math.round(this.map_range(sample, this.min, this.max, 0, 255 * this.VOLUME));
     let val : number;
 
@@ -344,6 +348,7 @@ export default class SoundtrackOptical {
   private line (len : number, color : number) : Uint8Array {
   	let pixels : Uint8Array = new Uint8Array(len * 4);
   	let cursor : number;
+
   	for (let i : number = 0; i < len; i++) {
   		cursor = i * 4;
   		pixels[cursor] = color;
@@ -351,7 +356,13 @@ export default class SoundtrackOptical {
   		pixels[cursor + 2] = color;
   		pixels[cursor + 3] = 255;
   	}
+
   	return pixels;
+  }
+
+  private padLeft (num : number, width : number, z : any = '0') : string {
+    let n : string = num + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
   }
 }
 

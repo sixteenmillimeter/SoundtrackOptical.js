@@ -42,6 +42,7 @@ exports.__esModule = true;
 var fs_extra_1 = require("fs-extra");
 var jimp_1 = __importDefault(require("jimp"));
 var audio_decode_1 = __importDefault(require("audio-decode"));
+var path_1 = require("path");
 //import WavDecoder from 'wav-decoder';
 //import buffer from 'audio-lena/mp3';
 /**
@@ -55,13 +56,14 @@ var SoundtrackOptical = /** @class */ (function () {
      * @constructor
      *
      * @param soundtrackFile {String} Path to soundtrackFile
+     * @param {string} output Directory to output frame files to
      * @param dpi {Integer} Dpi of output resolution to scale to
      * @param volume {Float} Volume of output soundtrack, 0 to 1.0
      * @param type {String} Type of soundtrack either "unilateral", "variable area", "dual variable area", "multiple variable area", "variable density"
      * @param pitch {String} Pitch of the film, either "long" for projection or "short" for camera stock
      * @param positive {Boolean} Whether or not soundtrack is positive or negative
      */
-    function SoundtrackOptical(soundtrackFile, dpi, volume, type, pitch, positive) {
+    function SoundtrackOptical(soundtrackFile, output, dpi, volume, type, pitch, positive) {
         this.TYPE = 'variable density'; //'multiple variable area'// 'dual variable area'; //'unilateral'////
         this.SCALED = false;
         this.DPI = 2880;
@@ -84,6 +86,7 @@ var SoundtrackOptical = /** @class */ (function () {
         this.max = -Infinity;
         this.min = Infinity;
         this.FILEPATH = soundtrackFile;
+        this.OUTPUT = typeof output !== 'undefined' ? output : __dirname;
         this.VOLUME = typeof volume !== 'undefined' ? volume : this.VOLUME;
         this.POSITIVE = typeof positive !== 'undefined' ? positive : this.POSITIVE;
         this.FRAME_H = (pitch == 'short') ? 7.605 : 7.62;
@@ -151,7 +154,7 @@ var SoundtrackOptical = /** @class */ (function () {
     /**
      * Calls frame() every frame of parent PApplet draw()
      *
-     */
+     **/
     SoundtrackOptical.prototype.draw = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -201,16 +204,18 @@ var SoundtrackOptical = /** @class */ (function () {
         return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
     };
     /**
-     * Draws a frame on parent PApplet window at position
+     * Draws a frame in raw window at position
      *
      * @param frameNumber {Integer} Frame of soundtrack to draw
      */
     SoundtrackOptical.prototype.frame = function (frameNumber) {
         return __awaiter(this, void 0, void 0, function () {
-            var line, color, bg, raw, err_3, y;
+            var frameStr, framePath, line, color, bg, raw, err_3, y, err_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        frameStr = this.padLeft(frameNumber, 6);
+                        framePath = path_1.resolve(path_1.join(this.OUTPUT, "./" + frameStr + "-" + this.TYPE + ".png"));
                         color = this.POSITIVE ? 255 : 0;
                         bg = this.POSITIVE ? 0 : 255;
                         _a.label = 1;
@@ -255,17 +260,19 @@ var SoundtrackOptical = /** @class */ (function () {
                             }
                             raw.bitmap.data.set(line, y * line.length);
                         }
-                        if (this.SCALED) {
-                            raw.resize(this.DEPTH, this.FRAME_H_PIXELS);
-                        }
-                        else {
-                            try {
-                                //await raw.writeAsync(`./${frameNumber}-${this.TYPE}.png`);
-                            }
-                            catch (err) {
-                                throw err;
-                            }
-                        }
+                        if (!this.SCALED) return [3 /*break*/, 5];
+                        raw.resize(this.DEPTH, this.FRAME_H_PIXELS);
+                        return [3 /*break*/, 8];
+                    case 5:
+                        _a.trys.push([5, 7, , 8]);
+                        return [4 /*yield*/, raw.writeAsync(framePath)];
+                    case 6:
+                        _a.sent();
+                        return [3 /*break*/, 8];
+                    case 7:
+                        err_4 = _a.sent();
+                        throw err_4;
+                    case 8:
                         if (frameNumber === -1) {
                             this.i++;
                         }
@@ -276,7 +283,7 @@ var SoundtrackOptical = /** @class */ (function () {
     };
     SoundtrackOptical.prototype.buffer = function (frameNumber) {
         return __awaiter(this, void 0, void 0, function () {
-            var line, color, bg, raw, err_4, y;
+            var line, color, bg, raw, err_5, y;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -290,8 +297,8 @@ var SoundtrackOptical = /** @class */ (function () {
                         raw = _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
-                        err_4 = _a.sent();
-                        throw err_4;
+                        err_5 = _a.sent();
+                        throw err_5;
                     case 4:
                         if (frameNumber != -1) {
                             this.i = frameNumber;
@@ -402,6 +409,11 @@ var SoundtrackOptical = /** @class */ (function () {
             pixels[cursor + 3] = 255;
         }
         return pixels;
+    };
+    SoundtrackOptical.prototype.padLeft = function (num, width, z) {
+        if (z === void 0) { z = '0'; }
+        var n = num + '';
+        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
     };
     return SoundtrackOptical;
 }());
